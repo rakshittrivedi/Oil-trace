@@ -18,7 +18,8 @@ interface LeftPanelProps {
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ activeLayers, setActiveLayers }) => {
-  const { incidents } = useRealTimeData();
+  const { state } = useRealTimeData();
+  const { incidents } = state;
   const [activeIncident, setActiveIncident] = useState('INC-001');
 
   const toggleLayer = (key: keyof LayerState) => {

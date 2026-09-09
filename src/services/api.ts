@@ -94,5 +94,22 @@ export const api = {
       const idx = subscribers.indexOf(callback);
       if (idx > -1) subscribers.splice(idx, 1);
     };
+  },
+  
+  runModelInference: async (imageFile: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    
+    const response = await fetch('http://localhost:8000/predict', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Inference failed: ${response.statusText}`);
+    }
+    
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
   }
 };

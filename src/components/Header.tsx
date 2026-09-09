@@ -3,7 +3,8 @@ import { ShieldAlert, Satellite } from 'lucide-react';
 import { useRealTimeData } from '../context/RealTimeContext';
 
 export const Header: React.FC = () => {
-  const { lastScanTime, activeAlerts } = useRealTimeData();
+  const { state } = useRealTimeData();
+  const { lastScanTime, activeAlerts } = state;
   
   // Format time to HH:MM:SS UTC
   const formattedTime = new Date(lastScanTime).toLocaleTimeString('en-GB', { timeZone: 'UTC' }) + ' UTC';

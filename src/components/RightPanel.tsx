@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { BrainCircuit, Crosshair, Ship, FileText, ActivitySquare } from 'lucide-react';
 import { useRealTimeData } from '../context/RealTimeContext';
+import { api } from '../services/api';
 
 export const RightPanel: React.FC = () => {
-  const { vessels, incidents } = useRealTimeData();
+  const { state: { vessels, incidents }, setPredictionMaskUrl } = useRealTimeData();
   const [selectedVessel, setSelectedVessel] = useState<string | null>(null);
   const [tracing, setTracing] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // We default to the first incident for AI Incident Analysis display
   const activeIncident = incidents[0];
@@ -13,6 +16,26 @@ export const RightPanel: React.FC = () => {
   const handleTraceOrigin = () => {
     setTracing(true);
     setTimeout(() => setTracing(false), 2000);
+  };
+  
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      setIsDetecting(true);
+      const url = await api.runModelInference(file);
+      setPredictionMaskUrl(url);
+    } catch (error) {
+      console.error('Failed to run inference', error);
+      alert('ML Backend Inference Failed. Is the FastAPI server running?');
+    } finally {
+      setIsDetecting(false);
+    }
   };
 
   const selectedVesselData = vessels.find(v => v.id === selectedVessel);
@@ -39,6 +62,25 @@ export const RightPanel: React.FC = () => {
           <div className="data-row">
             <span className="data-label">Estimated Age</span>
             <span className="data-value">7–10 hours</span>
+          </div>
+          
+          <div style={{ marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+            <input 
+              type="file" 
+              accept="image/*" 
+              style={{ display: 'none' }} 
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+            <button 
+              className="btn-primary" 
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}
+              onClick={handleUploadClick}
+              disabled={isDetecting}
+            >
+              <BrainCircuit size={14} />
+              {isDetecting ? 'RUNNING UNET MODEL...' : 'LIVE SAR DETECTION'}
+            </button>
           </div>
         </div>
       </div>

@@ -43,7 +43,7 @@ interface MapContainerProps {
 }
 
 export const MapContainer: React.FC<MapContainerProps> = ({ mode, activeLayers }) => {
-  const { vessels, incidents } = useRealTimeData();
+  const { state: { vessels, incidents }, predictionMaskUrl } = useRealTimeData();
   const position: [number, number] = [15.5, 65.5];
 
   return (
@@ -55,10 +55,20 @@ export const MapContainer: React.FC<MapContainerProps> = ({ mode, activeLayers }
         style={{ width: '100%', height: '100%', background: '#060913' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          className="dark-satellite-tiles"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          className="dark-base-tiles"
         />
+
+        {/* Live AI Detection Mask (if generated via backend) */}
+        {predictionMaskUrl && (
+          <ImageOverlay
+            url={predictionMaskUrl}
+            bounds={[[15.4, 65.4], [15.6, 65.6]]} // Approximate bounds for the demo test image
+            opacity={0.8}
+            zIndex={1000}
+          />
+        )}
 
         {/* Nautical charts for OpenSeaMap if Wind/Currents active for extra realism */}
         {(activeLayers.wind || activeLayers.oceanCurrents) && (
@@ -70,14 +80,6 @@ export const MapContainer: React.FC<MapContainerProps> = ({ mode, activeLayers }
         {/* Render Real-Time Incidents (SAR Layer) */}
         {activeLayers.sar && incidents.map((incident) => (
           <React.Fragment key={incident.id}>
-            {/* Highly realistic Sentinel-1 SAR imagery footprint */}
-            {incident.id === 'INC-001' && (
-              <ImageOverlay
-                url="/sar_spill.jpg"
-                bounds={[[15.35, 65.3], [15.65, 65.65]]}
-                opacity={0.7}
-              />
-            )}
             {incident.polygon.length > 0 && (
               <Polygon 
                 positions={incident.polygon} 

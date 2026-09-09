@@ -156,7 +156,7 @@ body, html {
   font-size: 10px;
 }
 
-/* Dark Satellite Mode Inversion for Esri */
-.dark-satellite-tiles {
-  filter: brightness(0.5) sepia(1) hue-rotate(170deg) saturate(1.5) contrast(1.1);
+/* Dark Base Map Inversion and Tinting for OSM */
+.dark-base-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.6) contrast(1.2) sepia(0.2);
 }

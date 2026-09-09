@@ -1,10 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { api, type SystemState } from '../services/api';
 
-const RealTimeContext = createContext<SystemState | null>(null);
+interface RealTimeContextType {
+  state: SystemState;
+  predictionMaskUrl: string | null;
+  setPredictionMaskUrl: (url: string | null) => void;
+}
+
+const RealTimeContext = createContext<RealTimeContextType | null>(null);
 
 export const RealTimeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<SystemState | null>(null);
+  const [predictionMaskUrl, setPredictionMaskUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Subscribe to the real-time API (WebSocket simulation)
@@ -20,7 +27,7 @@ export const RealTimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   return (
-    <RealTimeContext.Provider value={state}>
+    <RealTimeContext.Provider value={{ state, predictionMaskUrl, setPredictionMaskUrl }}>
       {children}
     </RealTimeContext.Provider>
   );
